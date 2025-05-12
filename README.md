@@ -109,5 +109,3 @@ Ensure the `image_download_service` is running before the `csv_handeling` servic
         *   [csv_handeling/src/main/resources/application.properties](csv_handeling/src/main/resources/application.properties)
         *   [image_download_service/src/main/resources/application.properties](image_download_service/src/main/resources/application.properties)
 *   **Image Upload Directory**: The directory where downloaded and compressed images are stored is configured in [`com.duft.image_download_service.Utility.Utility`](image_download_service/src/main/java/com/duft/image_download_service/Utility/Utility.java) (`UPLOAD_DIR`).
-
-```
