@@ -8,6 +8,7 @@ package com.duft.csv_handeling.RestController;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 // import java.io.InputStream;
@@ -92,41 +93,47 @@ public class InputCsvController {
 
     @GetMapping(value="/getcsv/{trackID}")
     public ResponseEntity<Resource> getCsv(@PathVariable String trackID){
-        if(!service.checkProcessedInd(trackID).equals("Success")){
-            return ResponseEntity.notFound().build();
-        }else{
-            
-        
+        String status = service.checkProcessedInd(trackID);
+        if (!"Success".equals(status)) {
+            // Respond with a message if still processing
+            return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .header(HttpHeaders.CONTENT_TYPE, "text/plain")
+                .body(new InputStreamResource(
+                    new java.io.ByteArrayInputStream(
+                        ("Still processing. Current status: " + status).getBytes(StandardCharsets.UTF_8)
+                    )
+                ));
+        } else {
+            try {
+                File csvFile = service.fetchDataforCSV(trackID); // Call your service method
 
-        try {
-        File csvFile = service.fetchDataforCSV(trackID); // Call your service method
+                if (csvFile == null || !csvFile.exists()) {
+                    // Handle case where file generation failed or file doesn't exist
+                    return ResponseEntity.notFound().build();
+                }
 
-        if (csvFile == null || !csvFile.exists()) {
-            // Handle case where file generation failed or file doesn't exist
-            return ResponseEntity.notFound().build();
+                InputStreamResource resource = new InputStreamResource(new FileInputStream(csvFile));
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + csvFile.getName() + "\"");
+                headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+                headers.add(HttpHeaders.PRAGMA, "no-cache");
+                headers.add(HttpHeaders.EXPIRES, "0");
+
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .contentLength(csvFile.length())
+                        .contentType(MediaType.parseMediaType("text/csv"))
+                        .body(resource);
+
+            } catch (IOException e) {
+                // Log error
+                // e.printStackTrace(); 
+                return ResponseEntity.internalServerError().body(null); // Or a more specific error response
+            }
         }
-
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(csvFile));
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + csvFile.getName() + "\"");
-        headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
-        headers.add(HttpHeaders.PRAGMA, "no-cache");
-        headers.add(HttpHeaders.EXPIRES, "0");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(csvFile.length())
-                .contentType(MediaType.parseMediaType("text/csv"))
-                .body(resource);
-
-    } catch (IOException e) {
-        // Log error
-        // e.printStackTrace(); 
-        return ResponseEntity.internalServerError().body(null); // Or a more specific error response
-    
     }
-    }   
-}
 
 }
+
