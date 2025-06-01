@@ -29,8 +29,23 @@ import org.springframework.stereotype.Service;
 @Service
 public class Utility {
 
-    private static final String UPLOAD_DIR = "/Users/souravsharma/Downloads/images";
+   private static final String UPLOAD_DIR = "images"; // Default upload directory
+    // @org.springframework.beans.factory.annotation.Value("${image.upload.dir}")
+    // private String UPLOAD_DIR;
+
+    // @PostConstruct
+    // private void initUploadDir() {
+    //     Path uploadPath = Paths.get(UPLOAD_DIR);
+    //     if (!Files.exists(uploadPath)) {
+    //         try {
+    //             Files.createDirectories(uploadPath);
+    //         } catch (IOException e) {
+    //             throw new RuntimeException("Could not create upload directory!", e);
+    //         }
+    //     }
+    // }
     private static final float COMPRESSED_QUALITY = 0.7f;
+    
 
     public Utility(){
         Path uploadPath = Paths.get(UPLOAD_DIR);

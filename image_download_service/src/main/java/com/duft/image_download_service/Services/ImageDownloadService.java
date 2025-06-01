@@ -81,10 +81,15 @@ public class ImageDownloadService {
                  outputProductUrls outputProductUrls = new outputProductUrls();
                 outputProductUrls.setInputUrlId(url.getUrlID());
                 outputProductUrls.setOutputUrls(outputUrl);
-                outputRepo.save(outputProductUrls);
-                url.setProcessedInd(true);
-                //System.out.println("After updating processed ind: "+url.toString());
-                productUrlrepo.save(url); // Save the updated entity back to the database
+                //TODO modify if condition to check if url is not updated with processedInd already which is same as url already updated in db in sepeate thread
+                if (productUrlrepo.findById(url.getUrlID()).isPresent() && !url.isProcessedInd()) {
+                    this.saveOutputUrl(outputProductUrls,url);
+                }
+                
+                // outputRepo.save(outputProductUrls);
+                // url.setProcessedInd(true);
+                // //System.out.println("After updating processed ind: "+url.toString());
+                // productUrlrepo.save(url); // Save the updated entity back to the database
                 //outputUrlsList.add(outputProductUrls);
                //TODO correct below to update url and then add it back in product to commit it
                //urls.get(0).setProcessedInd(true);
@@ -93,6 +98,18 @@ public class ImageDownloadService {
                
             }  
             
+    }
+    @Transactional
+    private void saveOutputUrl(outputProductUrls outputUrl,csvProductUrls url){ {
+        try {
+            outputRepo.save(outputUrl);
+            url.setProcessedInd(true);
+            productUrlrepo.save(url);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("Error in save output url");
+    }
+}
     }
 
     @Async

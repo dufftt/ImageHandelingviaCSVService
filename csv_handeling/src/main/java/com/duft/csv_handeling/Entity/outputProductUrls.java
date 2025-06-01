@@ -19,6 +19,7 @@ public class outputProductUrls {
      * will be mapped to url id(primary key) of csv product urls table
      * TODO: mapping need to be done
      */
+    @jakarta.persistence.Column(unique = true)
     private int inputUrlId;
 
     @Override
