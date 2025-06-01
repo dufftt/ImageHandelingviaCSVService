@@ -8,6 +8,7 @@ package com.duft.csv_handeling.RestController;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 // import java.io.InputStream;
@@ -100,7 +101,7 @@ public class InputCsvController {
                 .header(HttpHeaders.CONTENT_TYPE, "text/plain")
                 .body(new InputStreamResource(
                     new java.io.ByteArrayInputStream(
-                        ("Still processing. Current status: " + status).getBytes()
+                        ("Still processing. Current status: " + status).getBytes(StandardCharsets.UTF_8)
                     )
                 ));
         } else {
