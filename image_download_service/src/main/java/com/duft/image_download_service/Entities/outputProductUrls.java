@@ -27,7 +27,7 @@ public class outputProductUrls {
 
     /*
      * will be mapped to url id(primary key) of csv product urls table
-     * TODO: mapping need to be done
+     * added unique constriant to ensure no duplicate entries
      */
     
     @jakarta.persistence.Column(unique = true)
