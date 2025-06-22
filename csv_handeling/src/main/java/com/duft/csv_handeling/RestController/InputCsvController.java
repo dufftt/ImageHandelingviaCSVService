@@ -33,6 +33,7 @@ import com.duft.csv_handeling.DTO.UrlsPayloadDTO;
 import com.duft.csv_handeling.Entity.csvProduct;
 import com.duft.csv_handeling.Entity.csvProductUrls;
 import com.duft.csv_handeling.FeignClient.imageFeignClient;
+import com.duft.csv_handeling.Kafka.KafkaMessage;
 import com.duft.csv_handeling.Services.InputCsvHandelingService;
 
 import lombok.val;
@@ -85,6 +86,18 @@ public class InputCsvController {
         }
         
     }
+
+
+
+    @GetMapping(value = "/postKafkaMessage")
+    public String postKafkaMessage(@RequestParam("trackid") String trackID, @RequestParam("action") String action) {
+        KafkaMessage message = new KafkaMessage(trackID, action);
+        System.out.println("Message to be sent: " + message);
+        return service.postKafkaMessage(message);
+    }
+
+
+
 
     @PostMapping(value="/sendOutputData")
     public ResponseEntity<String> getPayLoad(@RequestBody UrlsPayloadDTO payload){
