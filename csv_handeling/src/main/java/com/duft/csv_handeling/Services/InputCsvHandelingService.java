@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +23,7 @@ import com.duft.csv_handeling.Entity.csvProduct;
 import com.duft.csv_handeling.Entity.csvProductUrls;
 import com.duft.csv_handeling.Entity.outputProductUrls;
 import com.duft.csv_handeling.FeignClient.imageFeignClient;
+import com.duft.csv_handeling.Kafka.KafkaMessage;
 import com.duft.csv_handeling.Repository.InputUrlRepository;
 import com.duft.csv_handeling.Repository.OutputUrlRepository;
 import com.duft.csv_handeling.Repository.csvProductRepository;
@@ -43,6 +47,10 @@ public class InputCsvHandelingService {
     private OutputUrlRepository outputRepo;
     @Autowired
     private imageFeignClient client;
+    @Autowired
+    private KafkaTemplate<String, KafkaMessage> kafkaTemplate;
+    @Value("${spring.kafka.topic.name}")
+    private String topic;
    
 
     @Transactional
@@ -134,5 +142,21 @@ public class InputCsvHandelingService {
             return null;
     }
 }
+
+/*
+ * Method to post a message to Kafka topic.
+ */
+    public String postKafkaMessage(KafkaMessage message) {
+       kafkaTemplate.send(topic,message);
+        return "Meesage sent to Kafka topic: " + topic + " with track ID: " + message.getTrackId();
+    }
+
+    /*
+     * Method to read messages from Kafka topic.
+     */
+    @KafkaListener(topics = "${spring.kafka.topic.name}", containerFactory = "kafkaListenerContainerFactory")
+    public void readMessage(KafkaMessage message){
+      System.out.println("Received message from Kafka: " + message.toString());
+    }
 
 }
